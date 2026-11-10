@@ -1520,6 +1520,7 @@ tl_extra_shim = _patch_missing_symbols(
         "floor",
         "gelu_none",
         "gelu_tanh",
+        "hypot",
         "isfinited",
         "isinf",
         "isnan",
