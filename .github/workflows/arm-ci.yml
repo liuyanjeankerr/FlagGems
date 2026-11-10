@@ -1,0 +1,35 @@
+name: ARM CI (O6N)
+
+on:
+  push:
+    branches: [arm-ci]
+  workflow_dispatch:
+
+concurrency:
+  group: arm-ci-o6n
+  cancel-in-progress: true
+
+jobs:
+  arm-tests:
+    runs-on: [self-hosted, o6n]
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run ARM test suite
+        run: |
+          source ~/ci/flagtree-main-venv/bin/activate
+          GEMS_VENDOR=arm PYTHONPATH=src \
+            python -m pytest tests/test_arm_int8_linear.py tests/test_arm_w4a8_g128.py \
+              -v --tb=short 2>&1 | tee pytest-arm.log
+
+      - name: Archive pytest log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-arm-log
+          path: pytest-arm.log
+          retention-days: 30
